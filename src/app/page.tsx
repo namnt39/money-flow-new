@@ -1,103 +1,81 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import { auth } from '@/lib/firebaseConfig';
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, User, signOut } from "firebase/auth";
+import { Dashboard } from '@/components/Dashboard'; // <-- Import component mới
+
+// Component UserProfile có thể giữ lại đây hoặc tách ra file riêng
+const UserProfile = ({ user }: { user: User }) => (
+    <div className="flex items-center space-x-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg mb-8">
+        <img src={user.photoURL || ''} alt={user.displayName || 'User Avatar'} className="w-16 h-16 rounded-full border-2 border-teal-400" />
+        <div>
+            <p className="font-bold text-lg text-white">{user.displayName}</p>
+            <p className="text-sm text-slate-400">{user.email}</p>
+            <button onClick={() => signOut(auth)} className="mt-2 text-sm text-red-400 hover:text-red-300">Đăng xuất</button>
+        </div>
+    </div>
+);
+
+const HomePage: NextPage = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setLoading(false); // Dừng loading khi đã có thông tin user (kể cả là null)
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Lỗi đăng nhập Google: ", error);
+    }
+  };
+
+  if (loading) {
+    return (
+        <main className="min-h-screen bg-slate-900 flex justify-center items-center">
+            <p className="text-white text-xl">Đang tải...</p>
+        </main>
+    )
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <Head>
+        <title>Money Flow - Quản lý Tài chính Cá nhân</title>
+      </Head>
+      <main className="min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 sm:p-8">
+        <div className="w-full max-w-5xl mx-auto">
+          <header className="text-center mb-6">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
+              Sep Money Flow 2.0
+            </h1>
+          </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          {user ? <UserProfile user={user} /> : (
+            <div className="flex justify-center w-full">
+                <button onClick={handleSignIn} className="mb-8 bg-blue-600 hover:bg-blue-500 font-bold py-3 px-6 rounded-lg">
+                    🚀 Đăng nhập bằng Google
+                </button>
+            </div>
+          )}
+          
+          {/* Gọi component Dashboard và truyền trạng thái đăng nhập vào */}
+          <Dashboard isEnabled={!!user} />
+
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </>
   );
-}
+};
+
+export default HomePage;
