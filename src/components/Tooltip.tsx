@@ -12,4 +12,3 @@ export const Tooltip = ({ children, text }: { children: React.ReactNode, text: s
         </div>
     );
 };
-
