@@ -6,8 +6,7 @@ import { ToggleSwitch } from './ToggleSwitch';
 import { firestore } from '@/lib/firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { FaTimesCircle } from 'react-icons/fa';
-import { Tooltip } from './Tooltip';
-
+import { Tooltip } from '@/components/Tooltip'; // FIX: Changed to absolute path alias
 interface CashbackFieldsProps {
     fromAccountId: string; transactionDate: string; amount: number;
     percentDiscount: string; fixedDiscount: string;
