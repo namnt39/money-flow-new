@@ -1,4 +1,4 @@
-// Updated: 20/09/2025 23:07
+// src/components/Dashboard.tsx
 "use client";
 
 import Link from 'next/link';
@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Papa from 'papaparse';
 import { firestore } from '@/lib/firebaseConfig';
 import { collection, doc, writeBatch } from "firebase/firestore";
+import { FaThList } from 'react-icons/fa';
 
 const FeatureCard = ({ title, description, children }: { title: string, description: string, children: React.ReactNode }) => (
     <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
@@ -91,13 +92,17 @@ export const Dashboard = ({ isEnabled }: { isEnabled: boolean }) => {
             <div className="space-y-8">
                 <FeatureCard title="Chức năng chính" description="Truy cập các bảng dữ liệu và thực hiện thao tác.">
                     <div className="grid grid-cols-2 gap-4">
-                        <Link href="/transactions" className="aspect-square flex justify-center items-center p-3 rounded-lg bg-blue-600 hover:bg-blue-500 transition-colors">Giao dịch</Link>
-                        <Link href="/accounts" className="aspect-square flex justify-center items-center p-3 rounded-lg bg-green-600 hover:bg-green-500 transition-colors">Tài khoản</Link>
-                        <Link href="/debt-ledger" className="aspect-square flex justify-center items-center p-3 rounded-lg bg-yellow-600 hover:bg-yellow-500 transition-colors">Sổ nợ</Link>
-                        <button disabled className="aspect-square flex justify-center items-center p-3 rounded-lg bg-sky-600/50 text-slate-400 cursor-not-allowed">Đối tác</button>
+                        <Link href="/add-transaction" className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition-colors font-bold">Thêm Giao dịch</Link>
+                        <Link href="/transactions" className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-blue-600 hover:bg-blue-500 transition-colors font-bold">Lịch sử GD</Link>
+                        <Link href="/accounts" className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-green-600 hover:bg-green-500 transition-colors font-bold">Tài khoản</Link>
+                        {/* UPDATE: Added navigation to Categories page */}
+                        <Link href="/categories" className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors font-bold"><FaThList className="mb-2"/>Danh mục</Link>
+                        <Link href="/debt-ledger" className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-yellow-600 hover:bg-yellow-500 transition-colors font-bold">Sổ nợ</Link>
+                        <button disabled className="aspect-square flex flex-col justify-center items-center p-3 rounded-lg bg-sky-600/50 text-slate-400 cursor-not-allowed font-bold">Đối tác</button>
                     </div>
                 </FeatureCard>
             </div>
         </div>
     );
 };
+
